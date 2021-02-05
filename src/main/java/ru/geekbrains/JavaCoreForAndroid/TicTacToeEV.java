@@ -9,10 +9,10 @@ import java.util.Scanner;
  *
  * @Author Student Dmitry Veremeenko aka StDimensiy
  * Group 24.12.2020
- * <p>
- * HomeWork for lesson1
- * Created 04.02.2021
- * v2.0
+ *
+ * HomeWork for lesson3
+ * Created 05.02.2021
+ * v1.0
  */
 public class TicTacToeEV {
     private static char[][] field;                                  // поле
@@ -21,8 +21,10 @@ public class TicTacToeEV {
     private static final char DOT_EMPTY = '.';                      // обозначение пустой ячейки
     private static final Scanner SCANNER = new Scanner(System.in);  // я так понял константой мы фиксируем тип, так как
     private static final Random RANDOM = new Random();              // ссылочный тип не может зафиксировать значение.
-    private static int fieldSizeX;                                  // размер поля по оси X (горизонталь)
-    private static int fieldSizeY;                                  // размер поля по оси Y (Вертикаль)
+    private static int fieldSizeX = 5;                                  // размер поля по оси X (горизонталь)
+    private static int fieldSizeY = 5;                                  // размер поля по оси Y (Вертикаль)
+    private static int lenWinSize = 4;                                  // условие победы n-элементов в ряд
+
 
     public static void main(String[] args) {
         while (true) {                                              // формируем бесконечный игровой цикл
@@ -49,8 +51,8 @@ public class TicTacToeEV {
     // метод инициализации игрового поля
     // TODO перенести инициализацию значений переменных класса из метода в класс
     private static void initField() {
-        fieldSizeX = 3;
-        fieldSizeY = 3;
+        //fieldSizeX = 3;
+        //fieldSizeY = 3;
         field = new char[fieldSizeY][fieldSizeX];
         for (int y = 0; y < fieldSizeY; y++) {
             for (int x = 0; x < fieldSizeX; x++) {
@@ -119,22 +121,77 @@ public class TicTacToeEV {
         return false;
     }
 
-    //метод проверки на получение выигрышной комбинации
-    // TODO переделать метод проверки выигрыша полностью, сделать его универсальным.
+    /* метод проверки на получение выигрышной комбинации
+    / Теперь метод универсальный и применим для поля любого размера с выигрышной комбинацией
+    / любой длины не длиннее чем само поле */
     private static boolean checkWin(char c) {
-        // hor
-        if (field[0][0] == c && field[0][1] == c && field[0][2] == c) return true;
-        if (field[1][0] == c && field[1][1] == c && field[1][2] == c) return true;
-        if (field[2][0] == c && field[2][1] == c && field[2][2] == c) return true;
+        //проверка наличия победной комбинации по горизонтали
+        for (int y=0; y< field.length - 1; y++){
+            for (int x=0; x < field[y].length - (lenWinSize-1); x++){
+                if (field[y][x] == c){
+                    int z = 1;
+                    do {
+                        if(field[y][x+z] != c){
+                            break;
+                        } else {
+                            z++;
+                            if (z >= lenWinSize) return true;
+                        }
+                    } while(true);
+                }
+            }
+        }
 
-        // ver
-        if (field[0][0] == c && field[1][0] == c && field[2][0] == c) return true;
-        if (field[0][1] == c && field[1][1] == c && field[2][1] == c) return true;
-        if (field[0][2] == c && field[1][2] == c && field[2][2] == c) return true;
+        //проверка наличия победной комбинации по вертикали
+        for (int y=0; y < field.length - (lenWinSize-1); y++){
+            for (int x=0; x < field[y].length-1; x++){
+                if (field[y][x] == c){
+                    int z = 1;
+                    do {
+                        if(field[y+z][x] != c){
+                            break;
+                        } else {
+                            z++;
+                            if (z >= lenWinSize) return true;
+                        }
+                    } while (true);
+                }
+            }
+        }
 
-        // dia
-        if (field[0][0] == c && field[1][1] == c && field[2][2] == c) return true;
-        if (field[0][2] == c && field[1][1] == c && field[2][0] == c) return true;
+        //проверка наличия победной комбинации вдоль главной диагонали (лево верх - право низ)
+        for (int y=0; y < field.length - (lenWinSize-1); y++){
+            for (int x=0; x < field[y].length - (lenWinSize-1); x++){
+                if (field[y][x] == c){
+                    int z=1;
+                    do {
+                        if(field[y+z][x+z] != c){
+                            break;
+                        } else {
+                            z++;
+                            if (z >= lenWinSize) return true;
+                        }
+                    } while (true);
+                }
+            }
+        }
+
+        //проверка наличия победной комбинации вдоль второстепенной диагонали (право верх - лево низ)
+        for (int y=0; y < field.length - (lenWinSize-1); y++){
+            for (int x = lenWinSize-1; x < field[y].length; x++){
+                if (field[y][x] == c){
+                    int z=1;
+                    do {
+                        if(field[y+z][x-z] != c){
+                            break;
+                        } else {
+                            z++;
+                            if (z >= lenWinSize) return true;
+                        }
+                    } while (true);
+                }
+            }
+        }
         return false;
     }
 
