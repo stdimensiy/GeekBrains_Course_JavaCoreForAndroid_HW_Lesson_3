@@ -9,7 +9,7 @@ import java.util.Scanner;
  *
  * @Author Student Dmitry Veremeenko aka StDimensiy
  * Group 24.12.2020
- *
+ * <p>
  * HomeWork for lesson3
  * Created 05.02.2021
  * v1.0
@@ -24,6 +24,8 @@ public class TicTacToeEV {
     private static int fieldSizeX = 5;                                  // размер поля по оси X (горизонталь)
     private static int fieldSizeY = 5;                                  // размер поля по оси Y (Вертикаль)
     private static int lenWinSize = 4;                                  // условие победы n-элементов в ряд
+    private static int ht_x = 0;                                     // координата последнего хода человека по x
+    private static int ht_y = 0;                                     // координата последнего хода человека по y
 
 
     public static void main(String[] args) {
@@ -49,7 +51,6 @@ public class TicTacToeEV {
     }
 
     // метод инициализации игрового поля
-    // TODO перенести инициализацию значений переменных класса из метода в класс
     private static void initField() {
         //fieldSizeX = 3;
         //fieldSizeY = 3;
@@ -62,7 +63,6 @@ public class TicTacToeEV {
     }
 
     // метод вывода визуализации поля в консоль
-    // TODO сделать поле более удобным и заменить цифры по вертикали буквами
     private static void printField() {
         System.out.print("+");
         for (int i = 0; i < fieldSizeX * 2 + 1; i++)
@@ -82,7 +82,6 @@ public class TicTacToeEV {
     }
 
     // метод хода человека
-    // TODO заменить ввод цифры вертикальной координаты на букву
     private static void humanTurn() {
         int x;
         int y;
@@ -94,6 +93,8 @@ public class TicTacToeEV {
         } while (!isCellValid(x, y) || !isCellEmpty(x, y));
 
         field[y][x] = DOT_HUMAN;
+        ht_x = x; // запоминаем последний ход противника. Алгоритм " Я тебя запомнил..."
+        ht_y = y; // запоминаем последний ход противника. Алгоритм " Я тебя запомнил..."
     }
 
     // метод проверки свободна ли ячейка
@@ -107,7 +108,6 @@ public class TicTacToeEV {
     }
 
     // метод проверки игры
-    // TODO при замене логики проверить, нужно ли тут что либо менять
     private static boolean checkGame(char dot, String s) {
 
         if (checkWin(dot)) {
@@ -125,51 +125,60 @@ public class TicTacToeEV {
     / Теперь метод универсальный и применим для поля любого размера с выигрышной комбинацией
     / любой длины не длиннее чем само поле */
     private static boolean checkWin(char c) {
-        //проверка наличия победной комбинации по горизонтали
-        for (int y=0; y< field.length - 1; y++){
-            for (int x=0; x < field[y].length - (lenWinSize-1); x++){
-                if (field[y][x] == c){
+        //Проверка наличия победной комбинации по горизонтали
+        for (int y = 0; y < field.length; y++) {
+            for (int x = 0; x < field[y].length - (lenWinSize - 1); x++) {
+                if (field[y][x] == c) {
                     int z = 1;
                     do {
-                        if(field[y][x+z] != c){
+                        if (field[y][x + z] != c) {
                             break;
                         } else {
                             z++;
-                            if (z >= lenWinSize) return true;
-                        }
-                    } while(true);
-                }
-            }
-        }
-
-        //проверка наличия победной комбинации по вертикали
-        for (int y=0; y < field.length - (lenWinSize-1); y++){
-            for (int x=0; x < field[y].length-1; x++){
-                if (field[y][x] == c){
-                    int z = 1;
-                    do {
-                        if(field[y+z][x] != c){
-                            break;
-                        } else {
-                            z++;
-                            if (z >= lenWinSize) return true;
+                            if (z >= lenWinSize) {
+                                System.out.println("Обнаружена победная комбинация по горизонтали");
+                                return true;
+                            }
                         }
                     } while (true);
                 }
             }
         }
 
-        //проверка наличия победной комбинации вдоль главной диагонали (лево верх - право низ)
-        for (int y=0; y < field.length - (lenWinSize-1); y++){
-            for (int x=0; x < field[y].length - (lenWinSize-1); x++){
-                if (field[y][x] == c){
-                    int z=1;
+        //Проверка наличия победной комбинации по вертикали
+        for (int y = 0; y < field.length - (lenWinSize - 1); y++) {
+            for (int x = 0; x < field[y].length; x++) {
+                if (field[y][x] == c) {
+                    int z = 1;
                     do {
-                        if(field[y+z][x+z] != c){
+                        if (field[y + z][x] != c) {
                             break;
                         } else {
                             z++;
-                            if (z >= lenWinSize) return true;
+                            if (z >= lenWinSize) {
+                                System.out.println("Обнаружена победная комбинация по вертикали");
+                                return true;
+                            }
+                        }
+                    } while (true);
+                }
+            }
+        }
+
+        //Проверка наличия победной комбинации вдоль главной диагонали (лево верх - право низ)
+        for (int y = 0; y < field.length - (lenWinSize - 1); y++) {
+            for (int x = 0; x < field[y].length - (lenWinSize - 1); x++) {
+                if (field[y][x] == c) {
+                    int z = 1;
+                    do {
+                        if (field[y + z][x + z] != c) {
+                            break;
+                        } else {
+                            z++;
+                            if (z >= lenWinSize) {
+                                System.out.println("Обнаружена победная комбинация вдоль главной диагонали слева направо");
+                                return true;
+                            }
                         }
                     } while (true);
                 }
@@ -177,16 +186,19 @@ public class TicTacToeEV {
         }
 
         //проверка наличия победной комбинации вдоль второстепенной диагонали (право верх - лево низ)
-        for (int y=0; y < field.length - (lenWinSize-1); y++){
-            for (int x = lenWinSize-1; x < field[y].length; x++){
-                if (field[y][x] == c){
-                    int z=1;
+        for (int y = 0; y < field.length - (lenWinSize - 1); y++) {
+            for (int x = lenWinSize - 1; x < field[y].length; x++) {
+                if (field[y][x] == c) {
+                    int z = 1;
                     do {
-                        if(field[y+z][x-z] != c){
+                        if (field[y + z][x - z] != c) {
                             break;
                         } else {
                             z++;
-                            if (z >= lenWinSize) return true;
+                            if (z >= lenWinSize) {
+                                System.out.println("Обнаружена победная комбинация вдоль второстепенной справа налево");
+                                return true;
+                            }
                         }
                     } while (true);
                 }
@@ -195,7 +207,7 @@ public class TicTacToeEV {
         return false;
     }
 
-    // проверка на ситуация "ничья"
+    // Проверка на ситуация "ничья"
     private static boolean checkDraw() {
         for (int y = 0; y < fieldSizeY; y++) {
             for (int x = 0; x < fieldSizeX; x++) {
@@ -205,17 +217,415 @@ public class TicTacToeEV {
         return true;
     }
 
-    // ход машины (без особой логики, случайный напрочь
-    // TODO переделать логику, попытаться научить играть комп в крестики нолики
+    // Ход машины
+    // Реализованы 3 дополнительных логических алгоритма (2 защитных один нападение)
     private static void aiTurn() {
         int x;
         int y;
-        do {
-            x = RANDOM.nextInt(fieldSizeX);
-            y = RANDOM.nextInt(fieldSizeY);
-        } while (!isCellEmpty(x, y));
+        int decisionIsMade = 0;
+        //базовая последовательность
+        //Проверка на наличие условия выигрыша в 1 ход. Алгоритм "Шах и мат"
+        //проверка на наличие условия неизбежного проигрыша в 2 хода. Алгоритм "Палка о двух концах"
+        //Преследование противника, ход в непосредственной близости от хода противника. Алгоритм "Прилипала"
+        //Алгоритм "Генератор случайного хода" -  оставлен базовым.
 
-        field[y][x] = DOT_AI;
+        // (НАПАДЕНИЕ) Алгоритм нападения "Шах и мат"  - выигрыш в один ход
+        if (decisionIsMade == 0) {
+            //(НАПАДЕНИЕ) проверка наличия победной комбинации по горизонтали (алгоритм шах и мат)
+            //ищет комбинацию из непрерывной последовательности символов ИИ по горизонтали в которой нехватает только последнего хода
+            for (int py = 0; py < field.length && decisionIsMade == 0; py++) {
+                for (int px = 0; px < field[py].length - (lenWinSize - 2) && decisionIsMade == 0; px++) {
+                    if (field[py][px] == DOT_AI) { //найден ключевой (стартовый элемент, запускается поиск "хвоста"
+                        int z = 1;
+                        do {
+                            if (field[py][px + z] != DOT_AI) {
+                                break;
+                            } else {
+                                z++;
+                                if (z >= lenWinSize - 1) {
+                                    System.out.println("Обнаружена ПРЕД-победная комбинация по горизонтали");
+                                    System.out.println("Проверяю возможность выигрыша при постановке значения в точку х = " + (px + z) + " y = " + py);
+                                    if (isCellValid(px + z, py) && isCellEmpty(px + z, py)) {
+                                        System.out.println("Решение принял алгоритм \"Шах и мат\" условие \"спереди\" --- ставлю в точку х = " + (px + z) + " y = " + py);
+                                        field[py][px + z] = DOT_AI;
+                                        decisionIsMade = 1;
+                                        break;
+                                    } else if (isCellValid(px - 1, py) && isCellEmpty(px - 1, py)) {
+                                        System.out.println("Решение принял алгоритм \"Шах и мат\" условие \"сзади\" --- ставлю в точку х = " + (px - 1) + " y = " + py);
+                                        field[py][px - 1] = DOT_AI;
+                                        decisionIsMade = 1;
+                                        break;
+                                    } else {
+                                        System.out.println("Не получилось ложная тревога");
+                                    }
+                                    //System.out.println("Я ДОЛЖЕН СХОДИТЬ! координаты х = "+ px +"y = "+ py);
+                                    break;
+                                }
+                            }
+                        } while (decisionIsMade == 0);
+                    }
+                }
+            }
+
+            //(НАПАДЕНИЕ) проверка наличия победной комбинации по вертикали (алгоритм шах и мат)
+            //ищет комбинацию из непрерывной последовательности символов ИИ по вертикали в которой нехватает только последнего хода
+            for (int py = 0; py < field.length - (lenWinSize - 2) && decisionIsMade == 0; py++) {
+                for (int px = 0; px < field[py].length && decisionIsMade == 0; px++) {
+                    if (field[py][px] == DOT_AI) { // запускаем поиск хвоста вниз
+                        int z = 1;
+                        do {
+                            if (field[py + z][px] != DOT_AI) { //если последовательно сть прервалась
+                                break;
+                            } else {
+                                z++;
+                                if (z >= lenWinSize - 1) {
+                                    System.out.println("Обнаружена ПРЕД-победная комбинация по вертикали");
+                                    System.out.println("Проверяю возможность выигрыша при постановке значения в точку х = " + px + " y = " + (py + z));
+                                    if (isCellValid(px, py + z) && isCellEmpty(px, py + z)) {
+                                        System.out.println("Решение принял алгоритм \"Шах и мат\" условие \"снизу\" --- ставлю в точку х = " + px + " y = " + (py + z));
+                                        field[py + z][px] = DOT_AI;
+                                        decisionIsMade = 1;
+                                        break;
+                                    } else if (isCellValid(px, py - 1) && isCellEmpty(px, py - 1)) {
+                                        System.out.println("Решение принял алгоритм \"Шах и мат\" условие \"сверху\" --- ставлю в точку х = " + px + " y = " + (py - 1));
+                                        field[py - 1][px] = DOT_AI;
+                                        decisionIsMade = 1;
+                                        break;
+                                    } else {
+                                        System.out.println("Не получилось ложная тревога");
+                                    }
+                                    //System.out.println("Я ДОЛЖЕН СХОДИТЬ! координаты х = "+ px +"y = "+ py);
+                                    break;
+                                }
+                            }
+                        } while (decisionIsMade == 0);
+                    }
+                }
+            }
+
+            //(НАПАДЕНИЕ) проверка наличия победной комбинации вдоль главной диагонали (лево верх - право низ) (алгоритм шах и мат)
+            //ищет комбинацию из непрерывной последовательности символов ИИ вдоль главной диагонали в которой нехватает только последнего хода
+            for (int py = 0; py < field.length - (lenWinSize - 2) && decisionIsMade == 0; py++) {
+                for (int px = 0; px < field[py].length - (lenWinSize - 2) && decisionIsMade == 0; px++) {
+                    if (field[py][px] == DOT_AI) { // запускаем поиск хвоста вниз вправо
+                        int z = 1;
+                        do {
+                            if (field[py + z][px + z] != DOT_AI) { //если последовательно сть прервалась
+                                break;
+                            } else {
+                                z++;
+                                if (z >= lenWinSize - 1) {
+                                    System.out.println("Обнаружена ПРЕД-победная комбинация вдоль главной диагонали");
+                                    System.out.println("Проверяю возможность выигрыша при постановке значения в точку х = " + (px + z) + " y = " + (py + z));
+                                    if (isCellValid(px + z, py + z) && isCellEmpty(px + z, py + z)) {
+                                        System.out.println("Решение принял алгоритм \"Шах и мат\" условие \"снизу\" --- ставлю в точку х = " + (px + z) + " y = " + (py + z));
+                                        field[py + z][px + z] = DOT_AI;
+                                        decisionIsMade = 1;
+                                        break;
+                                    } else if (isCellValid(px - 1, py - 1) && isCellEmpty(px - 1, py - 1)) {
+                                        System.out.println("Решение принял алгоритм \"Шах и мат\" условие \"сверху\" --- ставлю в точку х = " + (px - 1) + " y = " + (py - 1));
+                                        field[py - 1][px - 1] = DOT_AI;
+                                        decisionIsMade = 1;
+                                        break;
+                                    } else {
+                                        System.out.println("Не получилось ложная тревога");
+                                    }
+                                    //System.out.println("Я ДОЛЖЕН СХОДИТЬ! координаты х = "+ px +"y = "+ py);
+                                    break;
+                                }
+                            }
+                        } while (decisionIsMade == 0);
+                    }
+                }
+            }
+
+            //(НАПАДЕНИЕ) проверка наличия победной комбинации вдоль второстепенной диагонали (право верх - лево низ) (алгоритм шах и мат)
+            //ищет комбинацию из непрерывной последовательности символов ИИ вдоль второстепенной диагонали в которой нехватает только последнего хода
+            for (int py = 0; py < field.length - (lenWinSize - 2) && decisionIsMade == 0; py++) {
+                for (int px = lenWinSize - 2; px < field[py].length && decisionIsMade == 0; px++) {
+                    if (field[py][px] == DOT_AI) { // запускаем поиск хвоста вниз влево
+                        int z = 1;
+                        do {
+                            if (field[py + z][px - z] != DOT_AI) { //если последовательность прервалась
+                                break;
+                            } else {
+                                z++;
+                                if (z >= lenWinSize - 1) {
+                                    System.out.println("Обнаружена ПРЕД-победная комбинация вдоль главной диагонали");
+                                    System.out.println("Проверяю возможность выигрыша при постановке значения в точку х = " + (px - z) + " y = " + (py + z));
+                                    if (isCellValid(px - z, py + z) && isCellEmpty(px - z, py + z)) {
+                                        System.out.println("Решение принял алгоритм \"Шах и мат\" условие \"снизу\" --- ставлю в точку х = " + (px - z) + " y = " + (py + z));
+                                        field[py + z][px - z] = DOT_AI;
+                                        decisionIsMade = 1;
+                                        break;
+                                    } else if (isCellValid(px + 1, py - 1) && isCellEmpty(px + 1, py - 1)) {
+                                        System.out.println("Решение принял алгоритм \"Шах и мат\" условие \"сверху\" --- ставлю в точку х = " + (px + 1) + " y = " + (py - 1));
+                                        field[py - 1][px + 1] = DOT_AI;
+                                        decisionIsMade = 1;
+                                        break;
+                                    } else {
+                                        System.out.println("Не получилось ложная тревога");
+                                    }
+                                    //System.out.println("Я ДОЛЖЕН СХОДИТЬ! координаты х = "+ px +"y = "+ py);
+                                    break;
+                                }
+                            }
+                        } while (decisionIsMade == 0);
+                    }
+                }
+            }
+        }
+
+        // (ЗАЩИТА) Алгоритм защиты "Палка о двух концах..."
+        // (ЗАЩИТА) Ищет опасную проигрышную комбинацию при которой неизбежен проигрыш через 2 хода
+        if (decisionIsMade == 0) {
+            //Первая комбинация --- горизонт --- "Палка о двух концах..."
+            //(ЗАЩИТА)проверка наличия опасной комбинации по горизонтали (проверено работает)
+            for (int py = 0; py < field.length && decisionIsMade == 0; py++) {
+                for (int px = 0; px < field[py].length - (lenWinSize - 2) && decisionIsMade == 0; px++) {
+                    if (field[py][px] == DOT_HUMAN) {
+                        int z = 1;
+                        do {
+                            if (field[py][px + z] != DOT_HUMAN) {
+                                break;
+                            } else {
+                                z++;
+                                if (z >= lenWinSize - 2) {
+                                    if (isCellValid(px - 1, py) && isCellEmpty(px - 1, py) && isCellValid(px + z, py) && isCellEmpty(px + z, py)) {
+                                        System.out.println("Обнаружена ПРЕД-проигрышная комбинация по горизонтали !!!");
+                                        System.out.println("Предлагаю поставить нолик в позицию х=" + (px - 1) + " y=" + py + " или х=" + (px + z) + " y=" + py);
+                                        // выбор конкретно куда поставить в начало или в конец пока оставим за дополнительным алгоритмом подсчета соседей
+                                        // алгоритм тупой пока.
+                                        if (getBalansOfForses(px - 1, py) > getBalansOfForses(px + z, py)) {
+                                            field[py][px - 1] = DOT_AI;
+                                            System.out.println("Решение принял алгоритм \"Палка о двух концах...\" условие \"горизонт слева\" --- ставлю в точку х = " + (px - 1) + " y = " + py);
+                                        } else {
+                                            field[py][px + z] = DOT_AI;
+                                            System.out.println("Решение принял алгоритм \"Палка о двух концах...\" условие \"горизонт справа\" --- ставлю в точку х = " + (px + z) + " y = " + py);
+                                        }
+                                        decisionIsMade = 1;
+                                    }
+                                    break;
+                                }
+                            }
+                        } while (decisionIsMade == 0);
+                    }
+                }
+            }
+            //Вторая комбинация --- вертикаль --- "Палка о двух концах..." (проверено работает)
+            //(ЗАЩИТА) проверка наличия опасной комбинации по вертикали
+            for (int py = 0; py < field.length - (lenWinSize - 2) && decisionIsMade == 0; py++) {
+                for (int px = 0; px < field[py].length && decisionIsMade == 0; px++) {
+                    if (field[py][px] == DOT_HUMAN) {
+                        int z = 1;
+                        do {
+                            if (field[py + z][px] != DOT_HUMAN) {
+                                break;
+                            } else {
+                                z++;
+                                if (z >= lenWinSize - 2) {
+                                    if (isCellValid(px, py - 1) && isCellEmpty(px, py - 1) && isCellValid(px, py + z) && isCellEmpty(px, py + z)) {
+                                        System.out.println("Обнаружена ПРЕД-проигрышная комбинация по вертикали !!!");
+                                        System.out.println("Предлагаю поставить нолик в позицию х=" + px + " y=" + (py - 1) + " или х=" + px + " y=" + (py + z));
+                                        // выбор конкретно куда поставить в начало или в конец пока оставим за дополнительным алгоритмом подсчета соседей
+                                        // алгоритм тупой пока.
+                                        if (getBalansOfForses(px, py - 1) > getBalansOfForses(px, py + z)) {
+                                            field[py - 1][px] = DOT_AI;
+                                            System.out.println("Решение принял алгоритм \"Палка о двух концах...\" условие \"вертикаль сверху\" --- ставлю в точку х = " + px + " y = " + (py - 1));
+                                        } else {
+                                            field[py + z][px] = DOT_AI;
+                                            System.out.println("Решение принял алгоритм \"Палка о двух концах...\" условие \"вертикаль снизу\" --- ставлю в точку х = " + px + " y = " + (py + z));
+                                        }
+                                        decisionIsMade = 1;
+                                    }
+                                    break;
+                                }
+                            }
+                        } while (decisionIsMade == 0);
+                    }
+                }
+            }
+
+            //Третья комбинация --- главная диагональ --- "Палка о двух концах..." (проверено работает)
+            //(ЗАЩИТА) проверка наличия опасной комбинации вдоль главной диагонали
+            for (int py = 0; py < field.length - (lenWinSize - 2) && decisionIsMade == 0; py++) {
+                for (int px = 0; px < field[py].length - (lenWinSize - 2) && decisionIsMade == 0; px++) {
+                    if (field[py][px] == DOT_HUMAN) {
+                        int z = 1;
+                        do {
+                            if (field[py + z][px + z] != DOT_HUMAN) {
+                                break;
+                            } else {
+                                z++;
+                                if (z >= lenWinSize - 2) {
+                                    if (isCellValid(px - 1, py - 1) && isCellEmpty(px - 1, py - 1) && isCellValid(px + z, py + z) && isCellEmpty(px + z, py + z)) {
+                                        System.out.println("Обнаружена ПРЕД-проигрышная комбинация вдоль главной диагонали !!!");
+                                        System.out.println("Предлагаю поставить нолик в позицию х=" + (px - 1) + " y=" + (py - 1) + " или х=" + (px + z) + " y=" + (py + z));
+                                        // выбор конкретно куда поставить в начало или в конец пока оставим за дополнительным алгоритмом подсчета соседей
+                                        // алгоритм тупой пока.
+                                        if (getBalansOfForses(px - 1, py - 1) > getBalansOfForses(px + z, py + z)) {
+                                            field[py - 1][px - 1] = DOT_AI;
+                                            System.out.println("Решение принял алгоритм \"Палка о двух концах...\" условие \"главная диагональ сверху\" --- ставлю в точку х = " + (px - 1) + " y = " + (py - 1));
+                                        } else {
+                                            field[py + z][px + z] = DOT_AI;
+                                            System.out.println("Решение принял алгоритм \"Палка о двух концах...\" условие \"главная диагональ снизу\" --- ставлю в точку х = " + (px + z) + " y = " + (py + z));
+                                        }
+                                        decisionIsMade = 1;
+                                    }
+                                    break;
+                                }
+                            }
+                        } while (decisionIsMade == 0);
+                    }
+                }
+            }
+            //Четверная комбинация --- второстепенная диагональ --- "Палка о двух концах..." (проверено работает)
+            //!!! (ЗАЩИТА) проверка наличия опасной комбинации вдоль второстепенной диагонали
+            for (int py = 0; py < field.length - (lenWinSize - 2) && decisionIsMade == 0; py++) {
+                for (int px = lenWinSize - 2; px < field[py].length && decisionIsMade == 0; px++) {
+                    if (field[py][px] == DOT_HUMAN) {
+                        int z = 1;
+                        do {
+                            if (field[py + z][px - z] != DOT_HUMAN) {
+                                break;
+                            } else {
+                                z++;
+                                if (z >= lenWinSize - 2) {
+                                    if (isCellValid(px + 1, py - 1) && isCellEmpty(px + 1, py - 1) && isCellValid(px - z, py + z) && isCellEmpty(px - z, py + z)) {
+                                        System.out.println("Обнаружена ПРЕД-проигрышная комбинация вдоль второстепенной диагонали !!!");
+                                        System.out.println("Предлагаю поставить нолик в позицию х=" + (px + 1) + " y=" + (py - 1) + " или х=" + (px - z) + " y=" + (py + z));
+                                        // выбор конкретно куда поставить в начало или в конец пока оставим за дополнительным алгоритмом подсчета соседей
+                                        // алгоритм тупой пока.
+                                        if (getBalansOfForses(px + 1, py - 1) > getBalansOfForses(px - z, py + z)) {
+                                            field[py - 1][px + 1] = DOT_AI;
+                                            System.out.println("Решение принял алгоритм \"Палка о двух концах...\" условие \"второстепенная диагональ сверху\" --- ставлю в точку х = " + (px - 1) + " y = " + (py - 1));
+                                        } else {
+                                            field[py + z][px - z] = DOT_AI;
+                                            System.out.println("Решение принял алгоритм \"Палка о двух концах...\" условие \"второстепенная диагональ снизу\" --- ставлю в точку х = " + (px - z) + " y = " + (py + z));
+                                        }
+                                        decisionIsMade = 1;
+                                    }
+                                    break;
+                                }
+                            }
+                        } while (decisionIsMade == 0);
+                    }
+                }
+            }
+        }
+
+        // Алгоритм "Прилипала" / пока простенький, в следующей редакции к каждому варианту нужно прикрутить проверка на баланс.
+        if (decisionIsMade == 0) {
+            //Работа с элементами находящимися возле края или с занятыми клетками доработан чутка
+            if (decisionIsMade == 0 && isCellValid(ht_x - 1, ht_y - 1) && field[ht_y - 1][ht_x - 1] == DOT_HUMAN && isCellValid(ht_x + 1, ht_y + 1) && isCellEmpty(ht_x + 1, ht_y + 1)) {
+                decisionIsMade = 1;
+                field[ht_y + 1][ht_x + 1] = DOT_AI;
+            } else if (decisionIsMade == 0 && isCellValid(ht_x - 1, ht_y - 1) && field[ht_y - 1][ht_x - 1] == DOT_HUMAN && isCellValid(ht_x - 2, ht_y - 2) && isCellEmpty(ht_x - 2, ht_y - 2)) {
+                decisionIsMade = 1;
+                field[ht_y - 2][ht_x - 2] = DOT_AI;
+            }
+            if (decisionIsMade == 0 && isCellValid(ht_x, ht_y - 1) && field[ht_y - 1][ht_x] == DOT_HUMAN && isCellValid(ht_x, ht_y + 1) && isCellEmpty(ht_x, ht_y + 1)) {
+                decisionIsMade = 1;
+                field[ht_y + 1][ht_x] = DOT_AI;
+            } else if (decisionIsMade == 0 && isCellValid(ht_x, ht_y - 1) && field[ht_y - 1][ht_x] == DOT_HUMAN && isCellValid(ht_x, ht_y - 2) && isCellEmpty(ht_x, ht_y - 2)) {
+                decisionIsMade = 1;
+                field[ht_y - 2][ht_x] = DOT_AI;
+            }
+            if (decisionIsMade == 0 && isCellValid(ht_x + 1, ht_y - 1) && field[ht_y - 1][ht_x + 1] == DOT_HUMAN && isCellValid(ht_x - 1, ht_y + 1) && isCellEmpty(ht_x - 1, ht_y + 1)) {
+                decisionIsMade = 1;
+                field[ht_y + 1][ht_x - 1] = DOT_AI;
+            } else if (decisionIsMade == 0 && isCellValid(ht_x + 1, ht_y - 1) && field[ht_y - 1][ht_x + 1] == DOT_HUMAN && isCellValid(ht_x + 2, ht_y - 2) && isCellEmpty(ht_x + 2, ht_y - 2)) {
+                decisionIsMade = 1;
+                field[ht_y - 2][ht_x + 2] = DOT_AI;
+            }
+            if (decisionIsMade == 0 && isCellValid(ht_x + 1, ht_y) && field[ht_y][ht_x + 1] == DOT_HUMAN && isCellValid(ht_x - 1, ht_y) && isCellEmpty(ht_x - 1, ht_y)) {
+                decisionIsMade = 1;
+                field[ht_y][ht_x - 1] = DOT_AI;
+            } else if (decisionIsMade == 0 && isCellValid(ht_x + 1, ht_y) && field[ht_y][ht_x + 1] == DOT_HUMAN && isCellValid(ht_x + 2, ht_y) && isCellEmpty(ht_x + 2, ht_y)) {
+                decisionIsMade = 1;
+                field[ht_y][ht_x + 2] = DOT_AI;
+            }
+            if (decisionIsMade == 0 && isCellValid(ht_x + 1, ht_y + 1) && field[ht_y + 1][ht_x + 1] == DOT_HUMAN && isCellValid(ht_x - 1, ht_y - 1) && isCellEmpty(ht_x - 1, ht_y - 1)) {
+                decisionIsMade = 1;
+                field[ht_y - 1][ht_x - 1] = DOT_AI;
+            } else if (decisionIsMade == 0 && isCellValid(ht_x + 1, ht_y + 1) && field[ht_y + 1][ht_x + 1] == DOT_HUMAN && isCellValid(ht_x + 2, ht_y + 2) && isCellEmpty(ht_x + 2, ht_y + 2)) {
+                decisionIsMade = 1;
+                field[ht_y + 2][ht_x + 2] = DOT_AI;
+            }
+            if (decisionIsMade == 0 && isCellValid(ht_x, ht_y + 1) && field[ht_y + 1][ht_x] == DOT_HUMAN && isCellValid(ht_x, ht_y - 1) && isCellEmpty(ht_x, ht_y - 1)) {
+                decisionIsMade = 1;
+                field[ht_y - 1][ht_x] = DOT_AI;
+            } else if (decisionIsMade == 0 && isCellValid(ht_x, ht_y + 1) && field[ht_y + 1][ht_x] == DOT_HUMAN && isCellValid(ht_x, ht_y + 2) && isCellEmpty(ht_x, ht_y + 2)) {
+                decisionIsMade = 1;
+                field[ht_y + 2][ht_x] = DOT_AI;
+            }
+            if (decisionIsMade == 0 && isCellValid(ht_x - 1, ht_y + 1) && field[ht_y + 1][ht_x - 1] == DOT_HUMAN && isCellValid(ht_x + 1, ht_y - 1) && isCellEmpty(ht_x + 1, ht_y - 1)) {
+                decisionIsMade = 1;
+                field[ht_y - 1][ht_x + 1] = DOT_AI;
+            } else if (decisionIsMade == 0 && isCellValid(ht_x - 1, ht_y + 1) && field[ht_y + 1][ht_x - 1] == DOT_HUMAN && isCellValid(ht_x - 2, ht_y + 2) && isCellEmpty(ht_x - 2, ht_y + 2)) {
+                decisionIsMade = 1;
+                field[ht_y + 2][ht_x - 2] = DOT_AI;
+            }
+            if (decisionIsMade == 0 && isCellValid(ht_x - 1, ht_y) && field[ht_y][ht_x - 1] == DOT_HUMAN && isCellValid(ht_x + 1, ht_y) && isCellEmpty(ht_x + 1, ht_y)) {
+                decisionIsMade = 1;
+                field[ht_y][ht_x + 1] = DOT_AI;
+            } else if (decisionIsMade == 0 && isCellValid(ht_x - 1, ht_y) && field[ht_y][ht_x - 1] == DOT_HUMAN && isCellValid(ht_x - 2, ht_y) && isCellEmpty(ht_x - 2, ht_y)) {
+                decisionIsMade = 1;
+                field[ht_y][ht_x - 2] = DOT_AI;
+            }
+            if (decisionIsMade != 0) {
+                System.out.println("Решение приял алгоритм \"Прилипала\".");
+            }
+        }
+
+        // В случае когда решение на более высоком уровне не принято назначение хода поручается генератору.
+        // (НАПАДЕНИЕ) Алгоритм "Генератор случайного хода".
+        if (decisionIsMade == 0) {
+            do {
+                x = RANDOM.nextInt(fieldSizeX);
+                y = RANDOM.nextInt(fieldSizeY);
+            } while (!isCellEmpty(x, y));
+            System.out.println("Решение приял генератор случайного хода, x = " + x + ", y = " + y);
+            field[y][x] = DOT_AI; // Записываем ход в массив
+        }
     }
 
+    // (АНАЛИТИКА) метод сопоставления баланса сил вокруг поля, где потенциально есть возможность сделать ход.
+    // Знаю что код китайский, это предварительная разработка, оптимизация  - следующий этап
+    private static int getBalansOfForses(int bx, int by) {
+        int balans = 0;
+        //
+        if (isCellValid(bx - 1, by - 1) && field[by - 1][bx - 1] == DOT_AI) balans += 3;
+        if (isCellValid(bx - 1, by - 1) && field[by - 1][bx - 1] == DOT_HUMAN) balans += 2;
+        if (isCellValid(bx - 1, by - 1) && field[by - 1][bx - 1] == DOT_EMPTY) balans += 1;
+        //
+        if (isCellValid(bx, by - 1) && field[by - 1][bx] == DOT_AI) balans += 3;
+        if (isCellValid(bx, by - 1) && field[by - 1][bx] == DOT_HUMAN) balans += 2;
+        if (isCellValid(bx, by - 1) && field[by - 1][bx] == DOT_EMPTY) balans += 1;
+        //
+        if (isCellValid(bx + 1, by - 1) && field[by - 1][bx + 1] == DOT_AI) balans += 3;
+        if (isCellValid(bx + 1, by - 1) && field[by - 1][bx + 1] == DOT_HUMAN) balans += 2;
+        if (isCellValid(bx + 1, by - 1) && field[by - 1][bx + 1] == DOT_EMPTY) balans += 1;
+        //
+        if (isCellValid(bx + 1, by) && field[by][bx + 1] == DOT_AI) balans += 3;
+        if (isCellValid(bx + 1, by) && field[by][bx + 1] == DOT_HUMAN) balans += 2;
+        if (isCellValid(bx + 1, by) && field[by][bx + 1] == DOT_EMPTY) balans += 1;
+        //
+        if (isCellValid(bx - 1, by + 1) && field[by + 1][bx - 1] == DOT_AI) balans += 3;
+        if (isCellValid(bx - 1, by + 1) && field[by + 1][bx - 1] == DOT_HUMAN) balans += 2;
+        if (isCellValid(bx - 1, by + 1) && field[by + 1][bx - 1] == DOT_EMPTY) balans += 1;
+        //
+        if (isCellValid(bx, by + 1) && field[by + 1][bx] == DOT_AI) balans += 3;
+        if (isCellValid(bx, by + 1) && field[by + 1][bx] == DOT_HUMAN) balans += 2;
+        if (isCellValid(bx, by + 1) && field[by + 1][bx] == DOT_EMPTY) balans += 1;
+        //
+        if (isCellValid(bx + 1, by + 1) && field[by + 1][bx + 1] == DOT_AI) balans += 3;
+        if (isCellValid(bx + 1, by + 1) && field[by + 1][bx + 1] == DOT_HUMAN) balans += 2;
+        if (isCellValid(bx + 1, by + 1) && field[by + 1][bx + 1] == DOT_EMPTY) balans += 1;
+        //
+        if (isCellValid(bx - 1, by) && field[by][bx - 1] == DOT_AI) balans += 3;
+        if (isCellValid(bx - 1, by) && field[by][bx - 1] == DOT_HUMAN) balans += 2;
+        if (isCellValid(bx - 1, by) && field[by][bx - 1] == DOT_EMPTY) balans += 1;
+        return balans;
+    }
 }
